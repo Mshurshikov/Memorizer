@@ -9,13 +9,14 @@ QELEMENTS = SIDE ** 2 // 2
 buttons = []
 numbers = []
 main_window = Tk()
-picQuestion = PhotoImage(file = "FAQ.gif")
+
 
 prev = None
 
 def show(btns, nums, i, j):
 	global prev
-	btns[i][j].configure(text = nums[i*SIDE + j], image = '')
+	#btns[i][j].configure(text = nums[i*SIDE + j])
+	btns[i][j].configure(image = images[i*SIDE + j])
 	if prev:
 		if nums[prev[0]*SIDE + prev[1]] != nums[i*SIDE + j]:
 			main_window.after(1000, hide, btns, prev, i, j)
@@ -36,15 +37,23 @@ for i in range(1,100):
 	numbers.append(i)
 
 shuffle(numbers)
-numbers = numbers[:QELEMENTS]
-numbers = numbers * 2
+numbers = numbers[:QELEMENTS] * 2
 shuffle(numbers)
+
+files = os.listdir('gif')
+shuffle(files)
+files = files[:QELEMENTS] * 2
+shuffle(files)
+
+picQuestion = PhotoImage(file = 'FAQ.gif')
+images = [PhotoImage(file = os.path.join('gif', image))for image in files]
 
 for i in range(SIDE):
 	buttons.append([])
 	for j in range(SIDE):
 		b = Button (text = numbers[i*SIDE + j],
-					command = lambda ii=i, jj=j:show(buttons,numbers,ii,jj))
+					image = images[i*SIDE + j],
+					command = lambda ii=i, jj=j:show(buttons,files,ii,jj))
 		buttons[i].append(b)
 		b.grid(row = i, column = j)
 
