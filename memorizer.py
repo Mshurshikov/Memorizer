@@ -8,12 +8,14 @@ QELEMENTS = SIDE ** 2 // 2
 
 buttons = []
 numbers = []
+main_window = Tk()
+picQuestion = PhotoImage(file = "FAQ.gif")
 
 prev = None
 
 def show(btns, nums, i, j):
 	global prev
-	btns[i][j].configure(text = nums[i*SIDE + j])
+	btns[i][j].configure(text = nums[i*SIDE + j], image = '')
 	if prev:
 		if nums[prev[0]*SIDE + prev[1]] != nums[i*SIDE + j]:
 			main_window.after(1000, hide, btns, prev, i, j)
@@ -22,13 +24,13 @@ def show(btns, nums, i, j):
 		prev = (i,j)
 
 def hide(btns, prev, i, j):
-	btns[i][j].configure(text = 'X')
-	btns[prev[0]][prev[1]].configure(text = 'X')
+	btns[i][j].configure(image = picQuestion)
+	btns[prev[0]][prev[1]].configure(image = picQuestion)
 
 def hide_all(btns):
 	for i in range(SIDE):
 		for j in range(SIDE):
-			btns[i][j].configure(text = 'X')
+			btns[i][j].configure(image = picQuestion)
 
 for i in range(1,100):
 	numbers.append(i)
@@ -37,8 +39,6 @@ shuffle(numbers)
 numbers = numbers[:QELEMENTS]
 numbers = numbers * 2
 shuffle(numbers)
-
-main_window = Tk()
 
 for i in range(SIDE):
 	buttons.append([])
