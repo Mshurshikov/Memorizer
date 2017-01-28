@@ -4,12 +4,15 @@ import threading
 import time
 from random import shuffle, random
 from tkinter import *
+from tkinter import messagebox
 
 SIDE = 6
 QELEMENTS = SIDE ** 2 // 2
 
 buttons = []
 numbers = []
+images = []
+
 main_window = Tk()
 
 images_opened = 0
@@ -26,12 +29,22 @@ def update_time_label():
 	if time_left >= 0:
 		main_window.after(1000, update_time_label)
 	else:
-		print('Game over')
+		messagebox.showwarning("Game over", "Your time is up.")
 
 def start_timer():
 	print ('Starting...')
+	global time_left
+	time_left = 10
 	update_time_label()
 	print('Started')
+
+def start_game(btns):
+	global files, numbers, images
+	files, numbers, images = initialize_game()
+	for i in range(SIDE):
+		for j in range(SIDE):
+			btns[i][j].configure(image = images[i*SIDE + j], command = lambda ii=i, jj=j:show(buttons,files,ii,jj))
+	main_window.after(2000, hide_all, buttons)
 
 def show(btns, nums, i, j):
 	global prev
@@ -62,39 +75,49 @@ def hide_all(btns):
 			btns[i][j].configure(image = picQuestion)
 	start_timer()
 
-for i in range(1,100):
-	numbers.append(i)
+def initialize_game():
 
-shuffle(numbers)
-numbers = numbers[:QELEMENTS] * 2
-shuffle(numbers)
+	nums = []
+	imgs = []
+	fls = os.listdir('gif')
 
-files = os.listdir('gif')
-shuffle(files)
-files = files[:QELEMENTS] * 2
-shuffle(files)
+	for i in range(1,100):
+		nums.append(i)
+	
+	shuffle(nums)
+	nums = nums[:QELEMENTS] * 2
+	shuffle(nums)
+
+	shuffle(fls)
+	fls = fls[:QELEMENTS] * 2
+	shuffle(fls)
+	
+	imgs = [PhotoImage(file = os.path.join('gif', image))for image in fls]
+
+	return fls, nums, imgs
 
 picQuestion = PhotoImage(file = 'FAQ.gif')
-images = [PhotoImage(file = os.path.join('gif', image))for image in files]
 
 for i in range(SIDE):
 	buttons.append([])
 	for j in range(SIDE):
-		b = Button (text = numbers[i*SIDE + j],
-					image = images[i*SIDE + j],
-					relief=FLAT,
-					command = lambda ii=i, jj=j:show(buttons,files,ii,jj))
+		b = Button (#text = numbers[i*SIDE + j],
+					image = picQuestion,#images[i*SIDE + j],
+					relief=FLAT
+					)
 		buttons[i].append(b)
 		b.grid(row = i, column = j)
 
 progress_counter = Label(text = "Opened: " + str(images_opened) + " Left: " + str(images_left))
-progress_counter.grid(row = SIDE + 1, column = 0, columnspan = SIDE//2)
+progress_counter.grid(row = SIDE + 1, column = 0, columnspan = 2)
 
 time_counter = Label(text = "Time left: " + str(time_left) + " seconds")
-time_counter.grid(row = SIDE + 1, column = SIDE//2, columnspan = SIDE//2)
+time_counter.grid(row = SIDE + 1, column = SIDE - SIDE//3, columnspan = 2)
+
+start_button = Button(text = 'Start', command = lambda : start_game(buttons))
+start_button.grid(row = SIDE + 1, column = SIDE//3, columnspan = 2)
 
 main_window.title("Memorizer")
-main_window.after(2000, hide_all, buttons)
 
 
 main_window.mainloop()
