@@ -17,8 +17,13 @@ def show(btns, nums, i, j):
 	global prev
 	#btns[i][j].configure(text = nums[i*SIDE + j])
 	btns[i][j].configure(image = images[i*SIDE + j])
+	#print(btns[prev[0]][prev[1]].grid_info())
+	#print(btns[i][j].grid_info())
 	if prev:
-		if nums[prev[0]*SIDE + prev[1]] != nums[i*SIDE + j]:
+		coordinates = btns[i][j].grid_info()
+		prev_coordinates = btns[prev[0]][prev[1]].grid_info()
+		if (nums[prev[0]*SIDE + prev[1]] != nums[i*SIDE + j] 
+			or ((coordinates['column'] == prev_coordinates['column']) and (coordinates['row'] == prev_coordinates['row']))):
 			main_window.after(1000, hide, btns, prev, i, j)
 		prev = None
 	else:
