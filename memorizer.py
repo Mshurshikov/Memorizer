@@ -19,13 +19,6 @@ time_left = 10
 
 prev = None
 
-def timer():
-	
-	while 1:
-		time_left -= 1
-		update_time_label(time_left)
-		time.sleep(1)
-
 def update_time_label():
 	global time_left
 	time_counter.configure(text = "Time left: " + str(time_left) + " seconds")
@@ -99,8 +92,6 @@ progress_counter.grid(row = SIDE + 1, column = 0, columnspan = SIDE//2)
 
 time_counter = Label(text = "Time left: " + str(time_left) + " seconds")
 time_counter.grid(row = SIDE + 1, column = SIDE//2, columnspan = SIDE//2)
-
-#t = threading.Timer(1, timer)
 
 main_window.title("Memorizer")
 main_window.after(2000, hide_all, buttons)
