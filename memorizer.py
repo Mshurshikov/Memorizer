@@ -6,28 +6,47 @@ from random import shuffle, random
 from tkinter import *
 from tkinter import messagebox
 
-class Game(object):
-	"""docstring for Game"""
+class Control(object):
+	"""docstring for Control"""
 
-	side = 0
-	#qelements = side ** 2 // 2
-	images_opened = 0
-	picQuestion = None
-	numbers = []
-	images = []
-	time = 0
+	NEXT = 0
+	SUCCESS = 1
+	FAILURE = 2
 
 	def __init__(self, side, time):
-		self.side = side
 		self.qelements = side ** 2 // 2
 		self.time = time
+
+		self.images_opened = 0
 
 		self.numbers = self.generate_numbers(self.qelements)
 		self.images = self.generate_images(self.qelements)
 
-		self.picQuestion = PhotoImage(file = 'FAQ.gif')
-
-		print('Game initialized')
+		self.prev_picture = Picture()
+	
+	def start_game(self, side, buttons, time):
+		self.time = time
+		for i in range(side):
+			for j in range(side):
+				buttons[i][j].configure(image = self.images[i*side + j])
+	
+	def check_pictures(self, buttons, side, row, column):
+		print ('Button clicked')
+		buttons[row][column].configure(image = self.images[row*side + column])
+		
+		if self.prev_picture.coordinates:
+			if (self.numbers[self.prev_picture.coordinates[0]*side + self.prev_picture.coordinates[1]] == self.numbers[row*side + column] 
+				or ((buttons[row][column].grid_info()['column'] != buttons[self.prev_picture.coordinates[0]][self.prev_picture.coordinates[1]].grid_info()['column']) 
+					and (buttons[row][column].grid_info()['row'] != buttons[self.prev_picture.coordinates[0]][self.prev_picture.coordinates[1]].grid_info()['row']))):
+				self.images_opened += 1
+				self.prev_picture.coordinates = None
+				return self.SUCCESS
+			else:
+				self.prev_picture.coordinates = None
+				return self.FAILURE
+		else:
+			self.prev_picture.coordinates = (row,column)
+			return self.NEXT
 
 	def generate_numbers(self, elements):
 		numbers = []
@@ -46,113 +65,77 @@ class Game(object):
 		images = [PhotoImage(file=os.path.join('gif', image)) for image in files]
 		return images
 
-class Control(object):
-	"""docstring for Control"""
-	
-	buttons = []
-
-	def __init__(self, buttons):
-		self.buttons = buttons
-	
-	def start_game(self, numbers, images, side):
-		#global files, numbers, images
-		#files, numbers, images = initialize_game()
-		for i in range(side):
-			for j in range(side):
-				self.buttons[i][j].configure(image = images[i*side + j], command = lambda ii=i, jj=j:show(buttons,files,ii,jj))
-		main_window.after(2000, hide_all, buttons)
-
-	def start_timer():
-		print ('Starting...')
-		global time_left
-		time_left = 10
-		update_time_label()
-		print('Started')
-	
-	def show(btns, nums, i, j):
-		print ('Button clicked')
-		'''
-		global prev
-		global images_opened
-		global images_left
-		#btns[i][j].configure(text = nums[i*side + j])
-		btns[i][j].configure(image = images[i*side + j])
-		if prev:
-			if (nums[prev[0]*side + prev[1]] != nums[i*side + j] 
-				or ((btns[i][j].grid_info()['column'] == btns[prev[0]][prev[1]].grid_info()['column']) 
-					and (btns[i][j].grid_info()['row'] == btns[prev[0]][prev[1]].grid_info()['row']))):
-				main_window.after(1000, hide, btns, prev, i, j)
-			else:
-				progress_counter.configure(text = "Opened: " + str(images_opened + 1) + " Left: " + str(images_left - 1))
-				images_opened += 1
-				images_left -= 1
-			prev = None
-		else:
-			prev = (i,j)
-		'''
-
-	def hide(btns, prev, i, j):
-		btns[i][j].configure(image = picQuestion)
-		btns[prev[0]][prev[1]].configure(image = picQuestion)
-	
-	def hide_all(btns):
-		'''
-		for i in range(side):
-			for j in range(side):
-				btns[i][j].configure(image = picQuestion)
-		start_timer()
-		'''
-
-	def update_time_label():
-		'''
-		global time_left
-		time_counter.configure(text = "Time left: " + str(time_left) + " seconds")
-		time_left -= 1
-		if time_left >= 0:
-			main_window.after(1000, update_time_label)
-		else:
-			messagebox.showwarning("Game over", "Your time is up.")					
-		'''
-
 class Picture(object):
-	coordinates = ()
 	"""docstring for Picture"""
-	def __init__(self, coordinates):
-		self.coordinates = coordinates
+	def __init__(self):
+		self.coordinates = ()
 
 class Application(Frame):
 	"""docstring for Application"""
-	def __init__(self, master = None):
+	def __init__(self, side, master = None):
 		Frame.__init__(self, master)
+		self.pic_question = PhotoImage(file = 'FAQ.gif')
+		self.side = side
+		self.controller = Control(side, time = 10)
 		self.grid()
-		self.create_widgets()
+		self.buttons = self.create_buttons()
+		self.create_labels()
 
-	def create_widgets(self):
+	def create_buttons(self):
+		buttons = []
+		for i in range(self.side):
+			buttons.append([])
+			for j in range(self.side):
+				b = Button (image = self.pic_question,
+							command = lambda row = i, column = j: self.picture_click(row,column),
+							relief=FLAT
+							)
+				buttons[i].append(b)
+				b.grid(row = i, column = j)
+		return buttons
+
+	def create_labels(self):
 		self.progress_counter = Label(text = "Opened: 0 Left: 0")
-		self.progress_counter.grid(row = 1, column = 0, columnspan = 1)
+		self.progress_counter.grid(row = self.side + 1, column = 0, columnspan = self.side // 3)
 
-		self.time_counter = Label(text = "Time left: 0 seconds")
-		self.time_counter.grid(row = 1, column = 1, columnspan = 1)
+		self.start_button = Button(text = 'Start', command = self.start_click)
+		self.start_button.grid(row = self.side + 1, column = self.side // 3, columnspan = self.side // 3)
 
-		#self.start_button = Button(text = 'Start', command = control.start_game(game.numbers, game.images, game.side))
-		#self.start_button.grid(row = game.side + 1, column = game.side//3, columnspan = 2)
-		
-#main_window = Tk()
+		self.time_counter = Label(text = 'Time left: ' + str(self.controller.time) + ' seconds')
+		self.time_counter.grid(row = self.side + 1, column = self.side - (self.side // 3), columnspan = self.side // 3)
 
-app = Application()
-control = Control([])
-game = Game(6, 10)
-'''
-for i in range(game.side):
-	control.buttons.append([])
-	for j in range(game.side):
-		b = Button (#text = numbers[i*side + j],
-					image = game.picQuestion,#images[i*side + j],
-					relief=FLAT
-					)
-		control.buttons[i].append(b)
-		b.grid(row = i, column = j)
-'''
+	def start_click(self):
+		self.controller.start_game(self.side, self.buttons, time = 10)
+		self.after(2000, self.hide_all)
+		self.after(2000, self.update_time_label)
+		print ('Start game')
+
+	def picture_click(self, row, column):
+	 	if self.controller.check_pictures(self.buttons, self.side, row, column) == self.controller.SUCCESS:
+	 		self.progress_counter.configure(text = "Opened: " + str(self.controller.images_opened) + " Left: " + str(self.controller.qelements - self.controller.images_opened))
+	 	elif self.controller.check_pictures(self.buttons, self.side, row, column) == self.controller.FAILURE:
+	 		self.after(1000, self.hide, row, column)
+
+	def update_time_label(self):
+		self.time_counter.configure(text = "Time left: " + str(self.controller.time) + " seconds")
+		self.controller.time -= 1
+		if self.controller.time >= 0:
+			self.after(1000, self.update_time_label)
+		else:
+			messagebox.showwarning("Game over", "Your time is up.")	
+	
+	def hide(self, row, column):
+		self.buttons[row][column].configure(image = self.pic_question)
+		self.buttons[self.controller.prev_picture[0]][self.controller.prev_picture[1]].configure(image = self.pic_question)
+	
+	def hide_all(self):
+		print('Hidden')
+		for i in range(self.side):
+			for j in range(self.side):
+				self.buttons[i][j].configure(image = self.pic_question)	
+
+app = Application(side = 6)
+#control = Control(app.side, 10)
 
 app.master.title("Memorizer")
 
