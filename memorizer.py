@@ -13,18 +13,19 @@ class Control(object):
 	SUCCESS = 1
 	FAILURE = 2
 
-	def __init__(self, side, time):
+	time = 0
+	images_opened = 0
+	images = []
+	files = []
+
+	def __init__(self, side):
 		self.qelements = side ** 2 // 2
-		self.time = time
-
-		self.images_opened = 0
-
-		self.numbers = self.generate_numbers(self.qelements)
-		self.images, self.files = self.generate_images(self.qelements)
-
 		self.prev_picture = Picture()
 	
-	def start_game(self, side, buttons):
+	def start_game(self, side, buttons, time):
+		self.time = time
+		self.images_opened = 0
+		self.images, self.files = self.generate_images(self.qelements)
 		for i in range(side):
 			for j in range(side):
 				buttons[i][j].configure(image = self.images[i*side + j])
@@ -42,15 +43,6 @@ class Control(object):
 		else:
 			self.prev_picture.coordinates = (row,column)
 			return self.NEXT
-
-	def generate_numbers(self, elements):
-		numbers = []
-		for i in range(1,100):
-			numbers.append(i)
-		shuffle(numbers)
-		numbers = numbers[:elements] * 2
-		shuffle(numbers)
-		return numbers
 
 	def generate_images(self, elements):
 		files = os.listdir('gif')
@@ -71,7 +63,7 @@ class Application(Frame):
 		Frame.__init__(self, master)
 		self.pic_question = PhotoImage(file = 'FAQ.gif')
 		self.side = side
-		self.controller = Control(side, time = 120)
+		self.controller = Control(side)
 		self.grid()
 		self.buttons = self.create_buttons()
 		self.create_labels()
@@ -100,7 +92,7 @@ class Application(Frame):
 		self.time_counter.grid(row = self.side + 1, column = self.side - (self.side // 3), columnspan = self.side // 3)
 
 	def start_click(self):
-		self.controller.start_game(self.side, self.buttons)
+		self.controller.start_game(self.side, self.buttons, time = 20)
 		self.after(2000, self.hide_all)
 		self.after(2000, self.update_time_label)
 		print ('Start game')
@@ -131,7 +123,6 @@ class Application(Frame):
 				self.buttons[i][j].configure(image = self.pic_question)	
 
 app = Application(side = 6)
-#control = Control(app.side, 10)
 
 app.master.title("Memorizer")
 
