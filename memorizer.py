@@ -20,29 +20,24 @@ class Control(object):
 		self.images_opened = 0
 
 		self.numbers = self.generate_numbers(self.qelements)
-		self.images = self.generate_images(self.qelements)
+		self.images, self.files = self.generate_images(self.qelements)
 
 		self.prev_picture = Picture()
 	
-	def start_game(self, side, buttons, time):
-		self.time = time
+	def start_game(self, side, buttons):
 		for i in range(side):
 			for j in range(side):
 				buttons[i][j].configure(image = self.images[i*side + j])
 	
 	def check_pictures(self, buttons, side, row, column):
-		print ('Button clicked')
-		buttons[row][column].configure(image = self.images[row*side + column])
-		
+		buttons[row][column].configure(image = self.images[row*side + column])	
 		if self.prev_picture.coordinates:
-			if (self.numbers[self.prev_picture.coordinates[0]*side + self.prev_picture.coordinates[1]] == self.numbers[row*side + column] 
-				or ((buttons[row][column].grid_info()['column'] != buttons[self.prev_picture.coordinates[0]][self.prev_picture.coordinates[1]].grid_info()['column']) 
-					and (buttons[row][column].grid_info()['row'] != buttons[self.prev_picture.coordinates[0]][self.prev_picture.coordinates[1]].grid_info()['row']))):
+			if ((self.files[self.prev_picture.coordinates[0]*side + self.prev_picture.coordinates[1]] == self.files[row*side + column])
+				and ((row,column) != (self.prev_picture.coordinates[0], self.prev_picture.coordinates[1]))):
 				self.images_opened += 1
 				self.prev_picture.coordinates = None
 				return self.SUCCESS
 			else:
-				self.prev_picture.coordinates = None
 				return self.FAILURE
 		else:
 			self.prev_picture.coordinates = (row,column)
@@ -63,7 +58,7 @@ class Control(object):
 		files = files[:elements] * 2
 		shuffle(files)
 		images = [PhotoImage(file=os.path.join('gif', image)) for image in files]
-		return images
+		return images, files
 
 class Picture(object):
 	"""docstring for Picture"""
@@ -76,7 +71,7 @@ class Application(Frame):
 		Frame.__init__(self, master)
 		self.pic_question = PhotoImage(file = 'FAQ.gif')
 		self.side = side
-		self.controller = Control(side, time = 10)
+		self.controller = Control(side, time = 120)
 		self.grid()
 		self.buttons = self.create_buttons()
 		self.create_labels()
@@ -105,16 +100,17 @@ class Application(Frame):
 		self.time_counter.grid(row = self.side + 1, column = self.side - (self.side // 3), columnspan = self.side // 3)
 
 	def start_click(self):
-		self.controller.start_game(self.side, self.buttons, time = 10)
+		self.controller.start_game(self.side, self.buttons)
 		self.after(2000, self.hide_all)
 		self.after(2000, self.update_time_label)
 		print ('Start game')
 
 	def picture_click(self, row, column):
-	 	if self.controller.check_pictures(self.buttons, self.side, row, column) == self.controller.SUCCESS:
-	 		self.progress_counter.configure(text = "Opened: " + str(self.controller.images_opened) + " Left: " + str(self.controller.qelements - self.controller.images_opened))
-	 	elif self.controller.check_pictures(self.buttons, self.side, row, column) == self.controller.FAILURE:
-	 		self.after(1000, self.hide, row, column)
+		check = self.controller.check_pictures(self.buttons, self.side, row, column)
+		if check == self.controller.SUCCESS:
+			self.progress_counter.configure(text = "Opened: " + str(self.controller.images_opened) + " Left: " + str(self.controller.qelements - self.controller.images_opened))
+		elif check == self.controller.FAILURE:
+			self.after(1000, self.hide, row, column)
 
 	def update_time_label(self):
 		self.time_counter.configure(text = "Time left: " + str(self.controller.time) + " seconds")
@@ -126,10 +122,10 @@ class Application(Frame):
 	
 	def hide(self, row, column):
 		self.buttons[row][column].configure(image = self.pic_question)
-		self.buttons[self.controller.prev_picture[0]][self.controller.prev_picture[1]].configure(image = self.pic_question)
+		self.buttons[self.controller.prev_picture.coordinates[0]][self.controller.prev_picture.coordinates[1]].configure(image = self.pic_question)
+		self.controller.prev_picture.coordinates = None
 	
 	def hide_all(self):
-		print('Hidden')
 		for i in range(self.side):
 			for j in range(self.side):
 				self.buttons[i][j].configure(image = self.pic_question)	
