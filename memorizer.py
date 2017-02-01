@@ -74,7 +74,7 @@ class Application(Frame):
 		for i in range(self.side):
 			buttons.append([])
 			for j in range(self.side):
-				b = Button (image = self.pic_question,
+				b = Button (self, image = self.pic_question,
 							command = lambda row = i, column = j: self.picture_click(row,column),
 							relief=FLAT
 							)
@@ -83,13 +83,13 @@ class Application(Frame):
 		return buttons
 
 	def create_labels(self):
-		self.progress_counter = Label(text = "Opened: 0 Left: " + str(self.controller.qelements))
+		self.progress_counter = Label(self, text = "Opened: 0 Left: " + str(self.controller.qelements))
 		self.progress_counter.grid(row = self.side + 1, column = 0, columnspan = self.side // 3)
 
-		self.start_button = Button(text = 'Start', command = self.start_click)
+		self.start_button = Button(self, text = 'Start', command = self.start_click)
 		self.start_button.grid(row = self.side + 1, column = self.side // 3, columnspan = self.side // 3)
 
-		self.time_counter = Label(text = 'Time: ' + str(self.controller.time) + ' seconds')
+		self.time_counter = Label(self, text = 'Time: ' + str(self.controller.time) + ' seconds')
 		self.time_counter.grid(row = self.side + 1, column = self.side - (self.side // 3), columnspan = self.side // 3)
 
 	def start_click(self):
@@ -137,9 +137,45 @@ class Application(Frame):
 			self.cancel_timer()
 			self.master.destroy()
 
+class Login(Frame):
+	"""docstring for Login"""
+	def __init__(self, master):
+		Frame.__init__(self, master)
+		#master.minsize(width=300, height=300)
+		self.master = master
+		self.grid()
+		self.create_widget()
+
+	def create_widget(self):
+		self.user_name_label = Label(self, text = 'Username')
+		self.user_name_label.grid(row = 0, column = 0)
+		
+		self.user_name_input = Entry()
+		self.user_name_input.grid(row = 0, column = 1)
+
+		self.start_game_button = Button(self, text = 'Start', command = self.start_game)
+		self.start_game_button.grid(row = 1, column = 1)
+
+	def get_user_name(self): 
+		return self.user_name_input.get()
+
+	def start_game(self):
+		if self.get_user_name():
+			self.new_window = Toplevel(self.master)
+			Application(self.new_window, side = 6)
+		else:
+			messagebox.showwarning("Enter Username", "Please, enter your name to begin.")
+
+		
 if __name__ == '__main__':
 	root = Tk()
-	app = Application(root,side = 6)
-	app.master.title("Memorizer")
-	app.master.protocol("WM_DELETE_WINDOW", app.on_closing)
-	app.mainloop()
+	#app = Application(root,side = 6)
+	#app.master.title("Memorizer")
+	login = Login(root)
+	root.title("Memorizer")
+
+	#if login.start_game():
+	#	app = Application(root,side = 6)
+	#app.master.protocol("WM_DELETE_WINDOW", app.on_closing)
+	#root.protocol("WM_DELETE_WINDOW", app.on_closing)
+	root.mainloop()
