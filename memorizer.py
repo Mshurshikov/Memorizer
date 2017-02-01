@@ -59,11 +59,12 @@ class Picture(object):
 
 class Application(Frame):
 	"""docstring for Application"""
-	def __init__(self, side, master = None):
+	def __init__(self, master, side):
 		Frame.__init__(self, master)
 		self.pic_question = PhotoImage(file = 'FAQ.gif')
 		self.side = side
 		self.controller = Control(side)
+		self._timer = None
 		self.grid()
 		self.buttons = self.create_buttons()
 		self.create_labels()
@@ -82,17 +83,19 @@ class Application(Frame):
 		return buttons
 
 	def create_labels(self):
-		self.progress_counter = Label(text = "Opened: 0 Left: 0")
+		self.progress_counter = Label(text = "Opened: 0 Left: " + str(self.controller.qelements))
 		self.progress_counter.grid(row = self.side + 1, column = 0, columnspan = self.side // 3)
 
 		self.start_button = Button(text = 'Start', command = self.start_click)
 		self.start_button.grid(row = self.side + 1, column = self.side // 3, columnspan = self.side // 3)
 
-		self.time_counter = Label(text = 'Time left: ' + str(self.controller.time) + ' seconds')
+		self.time_counter = Label(text = 'Time: ' + str(self.controller.time) + ' seconds')
 		self.time_counter.grid(row = self.side + 1, column = self.side - (self.side // 3), columnspan = self.side // 3)
 
 	def start_click(self):
-		self.controller.start_game(self.side, self.buttons, time = 20)
+		self.progress_counter.configure(text = "Opened: 0 Left: " + str(self.controller.qelements))
+		self.cancel_timer()
+		self.controller.start_game(self.side, self.buttons, time = 0)
 		self.after(2000, self.hide_all)
 		self.after(2000, self.update_time_label)
 		print ('Start game')
@@ -105,12 +108,13 @@ class Application(Frame):
 			self.after(1000, self.hide, row, column)
 
 	def update_time_label(self):
-		self.time_counter.configure(text = "Time left: " + str(self.controller.time) + " seconds")
-		self.controller.time -= 1
-		if self.controller.time >= 0:
-			self.after(1000, self.update_time_label)
-		else:
-			messagebox.showwarning("Game over", "Your time is up.")	
+		self.time_counter.configure(text = "Time: " + str(self.controller.time) + " seconds")
+		self.controller.time += 1
+		#self.controller.time -= 1
+		#if self.controller.time >= 0:
+		self._timer = self.after(1000, self.update_time_label)
+		#else:
+		#	messagebox.showwarning("Game over", "Your time is up.")	
 	
 	def hide(self, row, column):
 		self.buttons[row][column].configure(image = self.pic_question)
@@ -120,10 +124,22 @@ class Application(Frame):
 	def hide_all(self):
 		for i in range(self.side):
 			for j in range(self.side):
-				self.buttons[i][j].configure(image = self.pic_question)	
+				self.buttons[i][j].configure(image = self.pic_question)
 
-app = Application(side = 6)
+	def cancel_timer(self):
+		print('Game stopped')
+		if self._timer is not None:
+			self.after_cancel(self._timer)
+			self._timer = None
 
-app.master.title("Memorizer")
+	def on_closing(self):
+		if messagebox.askokcancel("Quit", "Do you want to quit?"):
+			self.cancel_timer()
+			self.master.destroy()
 
-app.mainloop()
+if __name__ == '__main__':
+	root = Tk()
+	app = Application(root,side = 6)
+	app.master.title("Memorizer")
+	app.master.protocol("WM_DELETE_WINDOW", app.on_closing)
+	app.mainloop()
