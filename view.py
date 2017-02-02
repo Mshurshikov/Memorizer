@@ -9,11 +9,11 @@ class Login(tk.Toplevel):
 		self.title('Login')
 
 		self.grid()
-		self.user_name_label = tk.Label(self, text = 'Username')
-		self.user_name_label.grid(row = 0, column = 0)
+		self.player_name_label = tk.Label(self, text = 'Player:')
+		self.player_name_label.grid(row = 0, column = 0)
 		
-		self.user_name_input = tk.Entry(self)
-		self.user_name_input.grid(row = 0, column = 1)
+		self.player_name_input = tk.Entry(self)
+		self.player_name_input.grid(row = 0, column = 1)
 
 		self.start_game_button = tk.Button(self, text = 'Start')
 		self.start_game_button.grid(row = 1, column = 1)
@@ -28,6 +28,8 @@ class Game(tk.Toplevel):
 		
 		self.pic_question = tk.PhotoImage(file = 'FAQ.gif')
 		
+		self.images = None
+
 		self.grid()
 
 	def create_labels(self, side, qelements):
@@ -51,6 +53,16 @@ class Game(tk.Toplevel):
 				buttons[i].append(b)
 				b.grid(row = i, column = j)
 		return buttons
+
+	def hide_all(self, buttons, side):
+		for i in range(side):
+			for j in range(side):
+				buttons[i][j].configure(image = self.pic_question)
+
+	def show_all(self, buttons, side):
+		for i in range(side):
+			for j in range(side):
+				buttons[i][j].configure(image = self.images[i*side + j])
 
 class Score(tk.Toplevel):
 	"""docstring for Score"""
