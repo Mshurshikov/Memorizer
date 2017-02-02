@@ -1,0 +1,7 @@
+class Game(object):
+	"""docstring for Game"""
+	def __init__(self, side):
+		print('Game config initialized')
+		self.side = side
+		self.qelements = side ** 2 // 2
+		

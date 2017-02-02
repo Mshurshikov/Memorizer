@@ -61,7 +61,7 @@ class Application(Frame):
 	"""docstring for Application"""
 	def __init__(self, master, side):
 		Frame.__init__(self, master)
-		master.protocol("WM_DELETE_WINDOW", self.on_closing)
+		#master.protocol("WM_DELETE_WINDOW", self.on_closing)
 		self.pic_question = PhotoImage(file = 'FAQ.gif')
 		self.side = side
 		self.controller = Control(side)
@@ -159,11 +159,10 @@ class Login(Frame):
 	def start_game(self):
 		if self.get_user_name():
 			self.new_window = Toplevel(self.master)
-			self.app = Application(self.new_window, side = 6)
+			self.game = Application(self.new_window, side = 6)
 			self.master.withdraw()
 		else:
 			messagebox.showwarning("Enter Username", "Please, enter your name to begin.")
-
 		
 if __name__ == '__main__':
 	root = Tk()
