@@ -61,6 +61,7 @@ class Application(Frame):
 	"""docstring for Application"""
 	def __init__(self, master, side):
 		Frame.__init__(self, master)
+		master.protocol("WM_DELETE_WINDOW", self.on_closing)
 		self.pic_question = PhotoImage(file = 'FAQ.gif')
 		self.side = side
 		self.controller = Control(side)
@@ -110,11 +111,7 @@ class Application(Frame):
 	def update_time_label(self):
 		self.time_counter.configure(text = "Time: " + str(self.controller.time) + " seconds")
 		self.controller.time += 1
-		#self.controller.time -= 1
-		#if self.controller.time >= 0:
 		self._timer = self.after(1000, self.update_time_label)
-		#else:
-		#	messagebox.showwarning("Game over", "Your time is up.")	
 	
 	def hide(self, row, column):
 		self.buttons[row][column].configure(image = self.pic_question)
@@ -150,7 +147,7 @@ class Login(Frame):
 		self.user_name_label = Label(self, text = 'Username')
 		self.user_name_label.grid(row = 0, column = 0)
 		
-		self.user_name_input = Entry()
+		self.user_name_input = Entry(self)
 		self.user_name_input.grid(row = 0, column = 1)
 
 		self.start_game_button = Button(self, text = 'Start', command = self.start_game)
@@ -162,20 +159,17 @@ class Login(Frame):
 	def start_game(self):
 		if self.get_user_name():
 			self.new_window = Toplevel(self.master)
-			Application(self.new_window, side = 6)
+			self.app = Application(self.new_window, side = 6)
+			self.master.withdraw()
 		else:
 			messagebox.showwarning("Enter Username", "Please, enter your name to begin.")
 
 		
 if __name__ == '__main__':
 	root = Tk()
-	#app = Application(root,side = 6)
-	#app.master.title("Memorizer")
 	login = Login(root)
 	root.title("Memorizer")
 
-	#if login.start_game():
-	#	app = Application(root,side = 6)
 	#app.master.protocol("WM_DELETE_WINDOW", app.on_closing)
 	#root.protocol("WM_DELETE_WINDOW", app.on_closing)
 	root.mainloop()
