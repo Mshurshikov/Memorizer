@@ -65,8 +65,8 @@ class Game(tk.Toplevel):
 				buttons[i][j].configure(image = self.images[i*side + j])
 
 	def hide(self, buttons, previous_picture, row, column):
-		self.buttons[row][column].configure(image = self.pic_question)
-		self.buttons[previous_picture[0]][previous_picture[1]].configure(image = self.pic_question)
+		buttons[row][column].configure(image = self.pic_question)
+		buttons[previous_picture[0]][previous_picture[1]].configure(image = self.pic_question)
 
 class Score(tk.Toplevel):
 	"""docstring for Score"""
