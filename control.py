@@ -75,6 +75,8 @@ class Controller(object):
 				and ((row,column) != (self.previous_picture[0], self.previous_picture[1]))):
 				self.game_config.images_opened += 1
 				self.game.progress_counter.configure(text = "Opened: " + str(self.game_config.images_opened) + " Left: " + str(self.game_config.qelements - self.game_config.images_opened))
+				self.buttons[row][column].configure(state="disabled")
+				self.buttons[self.previous_picture[0]][self.previous_picture[1]].configure(state="disabled")
 			else:
 				self.game.after(self.game_config.hide_time, self.game.hide, self.buttons, self.previous_picture, row, column)
 			self.previous_picture = None
