@@ -18,6 +18,8 @@ class Login(tk.Toplevel):
 		self.start_game_button = tk.Button(self, text = 'Start')
 		self.start_game_button.grid(row = 1, column = 1)
 
+		self.player_name_input.focus_set()
+
 
 class Game(tk.Toplevel):
 	"""docstring for Game"""
