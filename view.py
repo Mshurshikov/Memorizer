@@ -47,9 +47,9 @@ class Game(tk.Toplevel):
 		for i in range(side):
 			buttons.append([])
 			for j in range(side):
-				b = tk.Button (self, 
-							image = self.pic_question,
-							relief = tk.FLAT)
+				b = tk.Button(	self, 
+								image = self.pic_question,
+								relief = tk.FLAT)
 				buttons[i].append(b)
 				b.grid(row = i, column = j)
 		return buttons
@@ -63,6 +63,10 @@ class Game(tk.Toplevel):
 		for i in range(side):
 			for j in range(side):
 				buttons[i][j].configure(image = self.images[i*side + j])
+
+	def hide(self, buttons, previous_picture, row, column):
+		self.buttons[row][column].configure(image = self.pic_question)
+		self.buttons[previous_picture[0]][previous_picture[1]].configure(image = self.pic_question)
 
 class Score(tk.Toplevel):
 	"""docstring for Score"""
