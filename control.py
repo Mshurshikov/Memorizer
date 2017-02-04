@@ -12,7 +12,8 @@ class Controller(object):
 	def __init__(self, master):
 		print('Root initialized')
 		self.master = master
-
+		self.buttons = []
+		self.previous_picture = ()
 		#init models
 		self.game_config = model.Game(side = 6)
 		
@@ -39,7 +40,7 @@ class Controller(object):
 		self.buttons = self.game.create_buttons(self.game_config.side)
 		for i in range(self.game_config.side):
 			for j in range(self.game_config.side):
-				self.buttons[i][j].configure(command = lambda row = i, column = j: self.picture_click(row, column))
+				self.buttons[i][j].configure(command = lambda row = i, column = j: self.check_pictures(row, column))
 
 		self.game.images,self.files = self.generate_images(self.game_config.qelements)
 		self.game.show_all(self.buttons, self.game_config.side)
@@ -67,5 +68,15 @@ class Controller(object):
 		images = [tk.PhotoImage(file=os.path.join('gif', image)) for image in files]
 		return images, files
 
-	def picture_click(self, row, column):
-		print ('Button clicked')
+	def check_pictures(self, row, column):
+		self.buttons[row][column].configure(image = self.game.images[row*self.game_config.side + column])
+		if self.previous_picture:
+			if ((self.files[self.previous_picture[0]*self.game_config.side + self.previous_picture[1]] == self.files[row*self.game_config.side + column])
+				and ((row,column) != (self.previous_picture[0], self.previous_picture[1]))):
+				self.game_config.images_opened += 1
+				self.game.progress_counter.configure(text = "Opened: " + str(self.game_config.images_opened) + " Left: " + str(self.game_config.qelements - self.game_config.images_opened))
+			else:
+				self.game.after(self.game_config.hide_time, self.game.hide, self.buttons, self.previous_picture, row, column)
+			self.previous_picture = None
+		else:
+			self.previous_picture = (row, column)
