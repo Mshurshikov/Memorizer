@@ -15,6 +15,7 @@ class Controller(object):
 		self.buttons = []
 		self.previous_picture = ()
 		self.update_time = 1000
+		self._timer = None
 		#init models
 		self.game_config = model.Game(side = 6)
 		
@@ -72,8 +73,8 @@ class Controller(object):
 		self._timer = self.game.after(self.update_time, self.start_timer)
 
 	def stop_timer(self):
-		print ('Timer stopped')
 		if self._timer:
+			print ('Timer stopped')
 			self.game.after_cancel(self._timer)
 			self._timer = None
 
@@ -107,3 +108,7 @@ class Controller(object):
 			self.game.score_counter.configure(text = "Score: {0}".format(self.game_config.score))
 		else:
 			self.previous_picture = (row, column)
+
+		if self.game_config.images_opened == self.game_config.qelements:
+			self.stop_game()
+			messagebox.showinfo('Congratulations', 'Congratulations, {0}! \n You found all pictures. \n Game score: {1}, Time: {2}, Pictures found: {3} from {4}'.format(self.game_config.player_name, self.game_config.score, self.game_config.time, self.game_config.images_opened, self.game_config.qelements))
