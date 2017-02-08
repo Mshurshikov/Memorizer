@@ -111,4 +111,4 @@ class Controller(object):
 
 		if self.game_config.images_opened == self.game_config.qelements:
 			self.stop_game()
-			messagebox.showinfo('Congratulations', 'Congratulations, {0}! \n You found all pictures. \n Game score: {1}, Time: {2}, Pictures found: {3} from {4}'.format(self.game_config.player_name, self.game_config.score, self.game_config.time, self.game_config.images_opened, self.game_config.qelements))
+			messagebox.showinfo(self.game, 'Congratulations', 'Congratulations, {0}! \nYou found all pictures. \nGame score: {1}, Time: {2}, Pictures found: {3} from {4}'.format(self.game_config.player_name, self.game_config.score, self.game_config.time, self.game_config.images_opened, self.game_config.qelements))
