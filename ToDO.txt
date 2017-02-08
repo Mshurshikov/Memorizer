@@ -1,0 +1,2 @@
+ToDO:
+- upper menu with new game, settings, exit, authors, score

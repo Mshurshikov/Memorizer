@@ -12,12 +12,10 @@ class Controller(object):
 	def __init__(self, master):
 		print('Root initialized')
 		self.master = master
-		self.buttons = []
-		self.previous_picture = ()
+
 		self.update_time = 1000
 		self._timer = None
-		#init models
-		self.game_config = model.Game(side = 6)
+		
 		
 		#init views
 		self.login = view.Login(master)
@@ -29,12 +27,10 @@ class Controller(object):
 		self.game.protocol("WM_DELETE_WINDOW", self.on_closing)
 		self.score.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-		self.game.withdraw()
-		self.score.withdraw()
-
-		self.init_login()
+		self.new_game()
 
 	def init_login(self):
+		self.login.player_name_input.delete(0, 'end')
 		self.login.start_game_button.configure(command = self.start_game)
 
 	def init_game(self):
@@ -51,6 +47,18 @@ class Controller(object):
 		self.game.after(self.game_config.show_time, self.game.hide_all, self.buttons, self.game_config.side)
 		self.game.after(self.game_config.show_time, self.start_timer)
 
+	def init_score(self):
+		self.score.new_game_button.configure(command = self.new_game)
+
+	def new_game(self):
+		self.buttons = []
+		self.previous_picture = ()
+		self.game_config = model.Game(side = 6)
+		self.game.withdraw()
+		self.score.withdraw()
+		self.login.deiconify()
+		self.init_login()
+
 	def start_game(self):
 		if self.login.player_name_input.get():
 			self.game_config.player_name = self.login.player_name_input.get()
@@ -64,6 +72,10 @@ class Controller(object):
 	def stop_game(self):
 		self.stop_timer()
 		self.game.show_all(self.buttons, self.game_config.side)
+		self.game.withdraw()
+		self.score.deiconify()
+		self.init_score()
+		self.score.show_results((self.game_config.player_name, self.game_config.score, self.game_config.time))
 		print ('Game stopped')
 		print ('Game score: {0}, Time: {1}, Pictures found: {2} from {3}'.format(self.game_config.score, self.game_config.time, self.game_config.images_opened, self.game_config.qelements))
 
@@ -100,10 +112,10 @@ class Controller(object):
 				self.game.progress_counter.configure(text = "Opened: " + str(self.game_config.images_opened) + " Left: " + str(self.game_config.qelements - self.game_config.images_opened))
 				self.buttons[row][column].configure(state="disabled")
 				self.buttons[self.previous_picture[0]][self.previous_picture[1]].configure(state="disabled")
-				self.game_config.score += 3
+				self.game_config.score += self.game_config.success
 			else:
 				self.game.after(self.game_config.hide_time, self.game.hide, self.buttons, self.previous_picture, row, column)
-				self.game_config.score -= 1
+				self.game_config.score -= self.game_config.failure
 			self.previous_picture = None
 			self.game.score_counter.configure(text = "Score: {0}".format(self.game_config.score))
 		else:
@@ -111,4 +123,4 @@ class Controller(object):
 
 		if self.game_config.images_opened == self.game_config.qelements:
 			self.stop_game()
-			messagebox.showinfo(self.game, 'Congratulations', 'Congratulations, {0}! \nYou found all pictures. \nGame score: {1}, Time: {2}, Pictures found: {3} from {4}'.format(self.game_config.player_name, self.game_config.score, self.game_config.time, self.game_config.images_opened, self.game_config.qelements))
+			messagebox.showinfo('Congratulations', 'Congratulations, {0}! \nYou found all pictures. \nGame score: {1}, Time: {2}, Pictures found: {3} from {4}'.format(self.game_config.player_name, self.game_config.score, self.game_config.time, self.game_config.images_opened, self.game_config.qelements))

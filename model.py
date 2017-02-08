@@ -10,4 +10,6 @@ class Game(object):
 		self.hide_time = 500 #in ms
 		self.player_name = None
 		self.images_opened = 0
+		self.success = 3
+		self.failure = 1
 		

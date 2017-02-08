@@ -79,3 +79,42 @@ class Score(tk.Toplevel):
 		print('Score initialized')
 		tk.Toplevel.__init__(self, master)
 		self.title('Score')
+
+		self.results = []
+
+		rows = 5
+		columns = 4
+
+		headers = ('#', 'Player', 'Score', 'Time')
+
+		for column, header in enumerate(headers):
+			entry = tk.Label(self, text = header)
+			entry.grid(row = 0, column = column)
+
+		for row in range(rows):
+			entry = tk.Label(self, text = str(row + 1))
+			entry.grid(row = row + 1, column = 0)
+
+		for i in range(1,rows):
+			for j in range(1, columns):
+				entry = tk.Label(self, text = '')
+				entry.grid(row = i, column = j)
+
+		self.new_game_button = tk.Button(self, text = 'New game')
+		self.new_game_button.grid(row = rows + 1, columnspan = columns)
+
+	def show_results(self, result):
+		self.results.append(result)
+		print(self.results)
+		for row, result in enumerate(self.results):
+			for column, res in enumerate(result):
+				label = tk.Label(self, text = res)
+				label.grid(row = row + 1, column = column + 1)
+
+
+
+
+
+
+
+
