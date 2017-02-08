@@ -99,8 +99,10 @@ class Controller(object):
 				self.game.progress_counter.configure(text = "Opened: " + str(self.game_config.images_opened) + " Left: " + str(self.game_config.qelements - self.game_config.images_opened))
 				self.buttons[row][column].configure(state="disabled")
 				self.buttons[self.previous_picture[0]][self.previous_picture[1]].configure(state="disabled")
+				self.game_config.score += 3
 			else:
 				self.game.after(self.game_config.hide_time, self.game.hide, self.buttons, self.previous_picture, row, column)
+				self.game_config.score -= 1
 			self.previous_picture = None
 		else:
 			self.previous_picture = (row, column)
