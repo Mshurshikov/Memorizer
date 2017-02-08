@@ -38,8 +38,8 @@ class Game(tk.Toplevel):
 		self.progress_counter = tk.Label(self, text = "Opened: 0 Left: " + str(qelements))
 		self.progress_counter.grid(row = side + 1, column = 0, columnspan = side // 3)
 
-		self.start_button = tk.Button(self, text = 'Stop')
-		self.start_button.grid(row = side + 1, column = side // 3, columnspan = side // 3)
+		self.stop_button = tk.Button(self, text = 'Stop')
+		self.stop_button.grid(row = side + 1, column = side // 3, columnspan = side // 3)
 
 		self.time_counter = tk.Label(self, text = 'Time: 0 seconds')
 		self.time_counter.grid(row = side + 1, column = side - (side // 3), columnspan = side // 3)
