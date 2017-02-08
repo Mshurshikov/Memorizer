@@ -35,14 +35,17 @@ class Game(tk.Toplevel):
 		self.grid()
 
 	def create_labels(self, side, qelements):
-		self.progress_counter = tk.Label(self, text = "Opened: 0 Left: " + str(qelements))
+		self.progress_counter = tk.Label(self, text = "Opened: {0} Left: {1}".format('0', str(qelements)))
 		self.progress_counter.grid(row = side + 1, column = 0, columnspan = side // 3)
 
-		self.stop_button = tk.Button(self, text = 'Stop')
-		self.stop_button.grid(row = side + 1, column = side // 3, columnspan = side // 3)
-
-		self.time_counter = tk.Label(self, text = 'Time: 0 seconds')
+		self.time_counter = tk.Label(self, text = 'Time: {0} seconds'.format('0'))
 		self.time_counter.grid(row = side + 1, column = side - (side // 3), columnspan = side // 3)
+
+		self.score_counter = tk.Label(self, text = "Score: {0}".format('0'))
+		self.score_counter.grid(row = side + 1, column = side // 3, columnspan = side // 3)
+
+		self.stop_button = tk.Button(self, text = 'Stop')
+		self.stop_button.grid(row = side + 2, columnspan = side)
 
 	def create_buttons(self, side):
 		buttons = []

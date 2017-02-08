@@ -104,5 +104,6 @@ class Controller(object):
 				self.game.after(self.game_config.hide_time, self.game.hide, self.buttons, self.previous_picture, row, column)
 				self.game_config.score -= 1
 			self.previous_picture = None
+			self.game.score_counter.configure(text = "Score: {0}".format(self.game_config.score))
 		else:
 			self.previous_picture = (row, column)
