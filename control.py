@@ -14,6 +14,7 @@ class Controller(object):
 		self.master = master
 		self.buttons = []
 		self.previous_picture = ()
+		self.update_time = 1000
 		#init models
 		self.game_config = model.Game(side = 6)
 		
@@ -45,6 +46,7 @@ class Controller(object):
 		self.game.images,self.files = self.generate_images(self.game_config.qelements)
 		self.game.show_all(self.buttons, self.game_config.side)
 		self.game.after(self.game_config.show_time, self.game.hide_all, self.buttons, self.game_config.side)
+		self.game.after(self.game_config.show_time, self.start_timer)
 
 	def start_game(self):
 		if self.login.player_name_input.get():
@@ -56,8 +58,20 @@ class Controller(object):
 		else:
 			messagebox.showwarning("Enter player", "Please, enter your name to begin.")
 
+	def start_timer(self):
+		self.game.time_counter.configure(text = "Time: " + str(self.game_config.time) + " seconds")
+		self.game_config.time += 1
+		self._timer = self.game.after(self.update_time, self.start_timer)
+
+	def stop_timer(self):
+		print ('Timer stopped')
+		if self._timer:
+			self.game.after_cancel(self._timer)
+			self._timer = None
+
 	def on_closing(self):
 		print('Closing...')
+		self.stop_timer()
 		self.master.destroy()
 
 	def generate_images(self, elements):
