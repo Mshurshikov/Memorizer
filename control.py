@@ -43,6 +43,8 @@ class Controller(object):
 			for j in range(self.game_config.side):
 				self.buttons[i][j].configure(command = lambda row = i, column = j: self.check_pictures(row, column))
 
+		self.game.stop_button.configure(command = self.stop_game)
+
 		self.game.images,self.files = self.generate_images(self.game_config.qelements)
 		self.game.show_all(self.buttons, self.game_config.side)
 		self.game.after(self.game_config.show_time, self.game.hide_all, self.buttons, self.game_config.side)
@@ -57,6 +59,12 @@ class Controller(object):
 			self.init_game()
 		else:
 			messagebox.showwarning("Enter player", "Please, enter your name to begin.")
+
+	def stop_game(self):
+		self.stop_timer()
+		self.game.show_all(self.buttons, self.game_config.side)
+		print ('Game stopped')
+		print ('Game score: {0}, Time: {1}, Pictures found: {2} from {3}'.format(self.game_config.score, self.game_config.time, self.game_config.images_opened, self.game_config.qelements))
 
 	def start_timer(self):
 		self.game.time_counter.configure(text = "Time: " + str(self.game_config.time) + " seconds")
